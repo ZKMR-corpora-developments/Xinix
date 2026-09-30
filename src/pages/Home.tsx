@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight, Globe, Smartphone, Video, Film, Cpu, Palette,
   CheckCircle, Star, Users, Clock, Shield, Zap, TrendingUp,
@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useAdminStore, useReviewStore } from '../store';
 import { ServiceCard } from '../components/Cards';
+import { Preview3D, PreviewCursor, PreviewMotion, Preview2D, PreviewAIVideo, PreviewEditing } from '../components/PreviewShowcase';
 
 const heroPreviews = [
   { icon: Globe, label: 'Websites', color: 'from-blue-500 to-cyan-500' },
@@ -106,44 +107,53 @@ export default function HomePage() {
               </div>
             </motion.div>
 
-            {/* Interactive Preview */}
+            {/* Interactive Preview Showcase */}
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, delay: 0.2 }} className="relative hidden lg:block">
-              <div className="relative w-full aspect-square max-w-md mx-auto">
-                <div className="absolute inset-12 rounded-full bg-white dark:bg-gray-800 shadow-2xl flex items-center justify-center z-10">
-                  <div className="text-center">
-                    {(() => {
-                      const Icon = heroPreviews[activePreview].icon;
-                      return <Icon size={48} className="mx-auto mb-2 text-brand-600" />;
-                    })()}
-                    <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{heroPreviews[activePreview].label}</p>
-                  </div>
+              <div className="relative w-full max-w-md mx-auto">
+                {/* Preview Tabs */}
+                <div className="flex gap-1 mb-3 bg-white/50 dark:bg-gray-800/50 backdrop-blur rounded-xl p-1">
+                  {heroPreviews.map((preview, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setActivePreview(i)}
+                      className={`flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-medium transition-all ${activePreview === i ? 'gradient-bg text-white shadow-md' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                      style={{ color: activePreview === i ? undefined : 'var(--text-secondary)' }}
+                    >
+                      <preview.icon size={12} />
+                      <span className="hidden xl:inline">{preview.label}</span>
+                    </button>
+                  ))}
                 </div>
 
-                {heroPreviews.map((preview, i) => {
-                  const angle = (i / heroPreviews.length) * Math.PI * 2 - Math.PI / 2;
-                  const radius = 42;
-                  const x = 50 + radius * Math.cos(angle);
-                  const y = 50 + radius * Math.sin(angle);
-                  return (
+                {/* Active Preview */}
+                <div className="relative rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-2xl aspect-[4/3]">
+                  <AnimatePresence mode="wait">
                     <motion.div
-                      key={i}
-                      className={`absolute w-14 h-14 rounded-2xl bg-gradient-to-br ${preview.color} flex items-center justify-center shadow-lg cursor-pointer ${activePreview === i ? 'scale-125 z-20' : 'scale-100'}`}
-                      style={{ left: `${x}%`, top: `${y}%`, transform: 'translate(-50%, -50%)' }}
-                      animate={{ scale: activePreview === i ? 1.25 : 1 }}
-                      onClick={() => setActivePreview(i)}
+                      key={activePreview}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.3 }}
+                      className="absolute inset-0"
                     >
-                      <preview.icon size={22} className="text-white" />
+                      {activePreview === 0 && <Preview3D />}
+                      {activePreview === 1 && <Preview2D />}
+                      {activePreview === 2 && <PreviewMotion />}
+                      {activePreview === 3 && <PreviewCursor />}
+                      {activePreview === 4 && <PreviewMotion />}
+                      {activePreview === 5 && <Preview3D />}
                     </motion.div>
-                  );
-                })}
+                  </AnimatePresence>
+                </div>
 
+                {/* Floating Cards */}
                 {floatingCards.map((card, i) => (
                   <motion.div
                     key={card.text}
                     className="absolute glass rounded-xl px-3 py-2 shadow-lg flex items-center gap-2 z-20"
                     style={{
                       top: `${[5, 85, 15, 75][i]}%`,
-                      left: `${[-5, 85, 90, -8][i]}%`,
+                      left: `${[-8, 88, 92, -10][i]}%`,
                     }}
                     animate={{ y: [0, -8, 0] }}
                     transition={{ duration: 4, repeat: Infinity, delay: i * 0.5 }}
@@ -202,6 +212,101 @@ export default function HomePage() {
             {featuredServices.map(service => (
               <ServiceCard key={service.id} service={service} />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* See What We Build - Interactive Gallery */}
+      <section className="py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold mb-3" style={{ color: 'var(--text-primary)' }}>See What We Build</h2>
+            <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--text-secondary)' }}>Experience the quality before you buy. Hover and interact with our live demos.</p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* 3D Website */}
+            <div className="group">
+              <div className="h-56 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg">
+                <Preview3D />
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>3D Interactive Website</h3>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Move mouse to rotate the scene</p>
+                </div>
+                <Link to="/service/svc-002" className="text-brand-600 text-sm font-medium hover:underline flex items-center gap-1">View <ArrowRight size={14} /></Link>
+              </div>
+            </div>
+
+            {/* 2D Animated */}
+            <div className="group">
+              <div className="h-56 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg">
+                <Preview2D />
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>2D Animated Website</h3>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Live animated scene elements</p>
+                </div>
+                <Link to="/service/svc-012" className="text-brand-600 text-sm font-medium hover:underline flex items-center gap-1">View <ArrowRight size={14} /></Link>
+              </div>
+            </div>
+
+            {/* Motion */}
+            <div className="group">
+              <div className="h-56 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg">
+                <PreviewMotion />
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Motion Website</h3>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Everything in constant motion</p>
+                </div>
+                <Link to="/service/svc-013" className="text-brand-600 text-sm font-medium hover:underline flex items-center gap-1">View <ArrowRight size={14} /></Link>
+              </div>
+            </div>
+
+            {/* Cursor Interactive */}
+            <div className="group">
+              <div className="h-56 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg">
+                <PreviewCursor />
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Cursor Interactive</h3>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Eyes follow your cursor</p>
+                </div>
+                <Link to="/service/svc-014" className="text-brand-600 text-sm font-medium hover:underline flex items-center gap-1">View <ArrowRight size={14} /></Link>
+              </div>
+            </div>
+
+            {/* AI Video */}
+            <div className="group">
+              <div className="h-56 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg">
+                <PreviewAIVideo />
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>AI Video Production</h3>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>AI-generated in real-time</p>
+                </div>
+                <Link to="/service/svc-003" className="text-brand-600 text-sm font-medium hover:underline flex items-center gap-1">View <ArrowRight size={14} /></Link>
+              </div>
+            </div>
+
+            {/* Editing */}
+            <div className="group">
+              <div className="h-56 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg">
+                <PreviewEditing />
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Professional Editing</h3>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Active timeline & effects</p>
+                </div>
+                <Link to="/service/svc-005" className="text-brand-600 text-sm font-medium hover:underline flex items-center gap-1">View <ArrowRight size={14} /></Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>

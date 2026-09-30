@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import { useAdminStore, useWishlistStore, useCartStore, useReviewStore } from '../store';
 import { ServiceCard, BookingModal } from '../components/Cards';
+import { previewComponents } from '../components/PreviewShowcase';
 
 const categories = [
   { id: 'all', label: 'All Services', icon: Package },
@@ -165,15 +166,18 @@ export function ServiceDetailPage() {
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2">
-          {/* Hero */}
-          <div className="relative h-64 sm:h-80 rounded-2xl bg-gradient-to-br from-brand-50 to-purple-50 dark:from-brand-900/20 dark:to-purple-900/20 flex items-center justify-center mb-6 overflow-hidden">
-            <div className="text-center">
-              <div className="w-20 h-20 rounded-2xl gradient-bg flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl text-white font-bold">
-                  {service.category === 'websites' ? '🌐' : service.category === 'apps' ? '📱' : service.category === 'ai-videos' ? '🎬' : service.category === 'editing' ? '🎞️' : service.category === 'simulators' ? '🖥️' : '💼'}
-                </span>
+          {/* Hero with Interactive Preview */}
+          <div className="relative h-72 sm:h-80 rounded-2xl overflow-hidden mb-6 border border-gray-200 dark:border-gray-700">
+            {(() => {
+              const PreviewComponent = previewComponents[service.subcategory] || previewComponents[service.category] || previewComponents['normal'];
+              return <PreviewComponent />;
+            })()}
+            <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+              <h1 className="text-lg sm:text-xl font-bold text-white drop-shadow-lg">{service.name}</h1>
+              <div className="flex gap-1">
+                {service.isFeatured && <span className="px-2 py-0.5 bg-amber-400 text-amber-900 text-[10px] font-bold rounded-full">Featured</span>}
+                {service.isTrending && <span className="px-2 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded-full">Trending</span>}
               </div>
-              <h1 className="text-2xl sm:text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>{service.name}</h1>
             </div>
           </div>
 
@@ -268,15 +272,12 @@ export function ServiceDetailPage() {
                 <button onClick={() => setPreviewMode('mobile')} className={`p-2 rounded-lg ${previewMode === 'mobile' ? 'bg-brand-100 dark:bg-brand-900/40 text-brand-600' : 'bg-gray-100 dark:bg-gray-800'}`}><Smartphone size={18} /></button>
               </div>
               <div className={`mx-auto rounded-2xl border-4 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 overflow-hidden transition-all ${previewMode === 'desktop' ? 'w-full h-96' : previewMode === 'tablet' ? 'w-3/4 h-96' : 'w-64 h-[500px] rounded-[2rem]'}`}>
-                <div className="h-full flex items-center justify-center bg-gradient-to-br from-brand-50 to-purple-50 dark:from-brand-900/20 dark:to-purple-900/20">
-                  <div className="text-center p-4">
-                    <Eye size={40} className="mx-auto mb-3 text-brand-400" />
-                    <p className="font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Preview: {service.name}</p>
-                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>This is a demonstration of the {previewMode} view. The actual deliverable will be a fully functional {service.type}.</p>
-                  </div>
-                </div>
+                {(() => {
+                  const PreviewComponent = previewComponents[service.subcategory] || previewComponents[service.category] || previewComponents['normal'];
+                  return <div className="h-full w-full"><PreviewComponent /></div>;
+                })()}
               </div>
-              <p className="text-xs text-center mt-3" style={{ color: 'var(--text-muted)' }}>This preview demonstrates the style and quality you can expect. Actual deliverables will be custom-built to your requirements.</p>
+              <p className="text-xs text-center mt-3" style={{ color: 'var(--text-muted)' }}>This interactive preview demonstrates the style and quality you can expect. Actual deliverables will be custom-built to your requirements.</p>
             </div>
           )}
 

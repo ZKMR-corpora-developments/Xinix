@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, ShoppingCart, Star, Clock, ArrowRight, Eye, ChevronRight, Zap, Shield, Package as PackageIcon } from 'lucide-react';
 import { Service, Product, PortfolioItem, useWishlistStore, useCartStore, useAuthStore, useBookingStore, useNotificationStore } from '../store';
+import { previewComponents } from './PreviewShowcase';
 
 // Service Card
 export function ServiceCard({ service }: { service: Service }) {
@@ -24,17 +25,20 @@ export function ServiceCard({ service }: { service: Service }) {
 
   return (
     <motion.div whileHover={{ y: -4 }} className="group bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-xl transition-all duration-300" style={{ boxShadow: 'var(--card-shadow)' }}>
-      {/* Image Area */}
-      <div className="relative h-44 bg-gradient-to-br from-brand-50 to-purple-50 dark:from-brand-900/20 dark:to-purple-900/20 flex items-center justify-center overflow-hidden">
-        <span className="text-5xl">{categoryIcons[service.category] || '💼'}</span>
+      {/* Image Area with Interactive Preview */}
+      <div className="relative h-44 overflow-hidden">
+        {(() => {
+          const PreviewComponent = previewComponents[service.subcategory] || previewComponents[service.category] || previewComponents['normal'];
+          return <div className="h-full w-full"><PreviewComponent /></div>;
+        })()}
         {/* Badges */}
-        <div className="absolute top-3 left-3 flex gap-1.5">
-          {service.isFeatured && <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-semibold rounded-full">Featured</span>}
-          {service.isTrending && <span className="px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-semibold rounded-full">Trending</span>}
-          {service.isNew && <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-semibold rounded-full">New</span>}
+        <div className="absolute top-3 left-3 flex gap-1.5 z-10">
+          {service.isFeatured && <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-semibold rounded-full shadow-sm">Featured</span>}
+          {service.isTrending && <span className="px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-semibold rounded-full shadow-sm">Trending</span>}
+          {service.isNew && <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-semibold rounded-full shadow-sm">New</span>}
         </div>
         {/* Wishlist */}
-        <button onClick={(e) => { e.preventDefault(); toggleItem(service.id); }} className="absolute top-3 right-3 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur hover:bg-white dark:hover:bg-gray-700 transition-colors">
+        <button onClick={(e) => { e.preventDefault(); toggleItem(service.id); }} className="absolute top-3 right-3 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur hover:bg-white dark:hover:bg-gray-700 transition-colors z-10">
           <Heart size={16} className={inWishlist ? 'fill-red-500 text-red-500' : 'text-gray-500'} />
         </button>
       </div>
